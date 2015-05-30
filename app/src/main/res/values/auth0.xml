@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auth0_client_id">U5MhUrbyQHSVWjlEqZSTCBUFABLbJAS3</string>
+    <string name="auth0_domain_name">overmind.auth0.com</string>
+    <string name="auth0_scheme">a0u5mhurbyqhsvwjleqzstcbufablbjas3</string>
+</resources>

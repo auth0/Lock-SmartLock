@@ -1,38 +1,109 @@
 package com.auth0.lock.smartlock.app;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.auth0.core.Token;
+import com.auth0.core.UserProfile;
+import com.auth0.lock.Lock;
+import com.auth0.lock.smartlock.SmartLock;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = MainActivity.class.getName();
+
+    private ProgressDialog progressDialog;
+    private LocalBroadcastManager broadcastManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(com.auth0.lock.smartlock.R.layout.activity_main);
+        setContentView(R.layout.activity_main);
+        Button loginButton = (Button) findViewById(R.id.main_login_button);
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showProgressDialog();
+                getSmartLock().loginFromActivity(MainActivity.this);
+            }
+        });
+        broadcastManager = LocalBroadcastManager.getInstance(this);
+        broadcastManager.registerReceiver(authenticationReceiver, new IntentFilter(Lock.AUTHENTICATION_ACTION));
+        broadcastManager.registerReceiver(cancelReceiver, new IntentFilter(Lock.CANCEL_ACTION));
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(com.auth0.lock.smartlock.R.menu.menu_main, menu);
-        return true;
+    protected void onDestroy() {
+        super.onDestroy();
+        broadcastManager.unregisterReceiver(authenticationReceiver);
+        broadcastManager.unregisterReceiver(cancelReceiver);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    protected void onStart() {
+        super.onStart();
+        getSmartLock().onStart();
+    }
 
-        //noinspection SimplifiableIfStatement
-        if (id == com.auth0.lock.smartlock.R.id.action_settings) {
-            return true;
+    @Override
+    protected void onStop() {
+        super.onStop();
+        getSmartLock().onStop();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        getSmartLock().onActivityResult(this, requestCode, resultCode, data);
+    }
+
+    private void showProgressDialog() {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null) {
+            progressDialog.dismiss();
         }
+        progressDialog = null;
+    }
 
-        return super.onOptionsItemSelected(item);
+    private BroadcastReceiver authenticationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            UserProfile profile = intent.getParcelableExtra(Lock.AUTHENTICATION_ACTION_PROFILE_PARAMETER);
+            Token token = intent.getParcelableExtra(Lock.AUTHENTICATION_ACTION_TOKEN_PARAMETER);
+            Log.d(TAG, "User " + profile.getName() + " with token " + token.getIdToken());
+            TextView welcomeLabel = (TextView) findViewById(R.id.main_welcome_label);
+            welcomeLabel.setText("Welcome " + profile.getName());
+            dismissProgressDialog();
+        }
+    };
+
+    private BroadcastReceiver cancelReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "User Cancelled");
+            dismissProgressDialog();
+        }
+    };
+
+    private SmartLock getSmartLock() {
+        SmartLockApplication application = (SmartLockApplication) getApplication();
+        return application.getSmartLock();
     }
 }
