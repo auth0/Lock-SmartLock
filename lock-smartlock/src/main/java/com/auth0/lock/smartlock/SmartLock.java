@@ -1,6 +1,7 @@
 package com.auth0.lock.smartlock;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -10,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.auth0.api.APIClient;
 import com.auth0.api.callback.AuthenticationCallback;
 import com.auth0.core.Token;
 import com.auth0.core.UserProfile;
@@ -31,7 +33,7 @@ import com.google.android.gms.common.api.Status;
 
 import java.lang.ref.WeakReference;
 
-public class SmartLock implements CredentialStore, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public static final int SMART_LOCK_READ = 90001;
     public static final int SMART_LOCK_SAVE = 90002;
@@ -43,7 +45,8 @@ public class SmartLock implements CredentialStore, GoogleApiClient.ConnectionCal
     private CredentialStoreCallback callback;
     private WeakReference<GoogleApiClientConnectTask> task;
 
-    public SmartLock(Context context) {
+    public SmartLock(Context context, APIClient apiClient) {
+        super(apiClient);
         credentialClient = new GoogleApiClient.Builder(context.getApplicationContext())
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -108,15 +111,12 @@ public class SmartLock implements CredentialStore, GoogleApiClient.ConnectionCal
                 .setProfilePictureUri(pictureUri)
                 .setPassword(password)
                 .build();
-        GoogleApiClientConnectTask task = new SaveCredentialTask(activity, credential);
-        task.execute(this);
-        this.task = new WeakReference<>(task);
+        startTask(new SaveCredentialTask(activity, credential));
     }
 
+    @Override
     public void loginFromActivity(Activity activity) {
-        GoogleApiClientConnectTask task = new RequestCredentialsTask(activity);
-        task.execute(this);
-        this.task = new WeakReference<>(task);
+        startTask(new RequestCredentialsTask(activity));
     }
 
     @Override
@@ -204,11 +204,54 @@ public class SmartLock implements CredentialStore, GoogleApiClient.ConnectionCal
     }
 
     private void startLockFromActivity(Activity activity) {
-        activity.startActivity(new Intent(activity, LockActivity.class));
+        super.loginFromActivity(activity);
     }
 
     private void clearTask() {
         task = new WeakReference<>(null);
     }
 
+    private void startTask(GoogleApiClientConnectTask task) {
+        task.execute(this);
+        this.task = new WeakReference<>(task);
+    }
+
+    @Override
+    public CredentialStore getCredentialStore() {
+        return this;
+    }
+
+    public static SmartLock getSmartLock(Activity activity) {
+        Application application = activity.getApplication();
+        if (!(application instanceof LockProvider)) {
+            throw new IllegalStateException("Android Application object must implement LockProvider interface");
+        }
+        LockProvider provider = (LockProvider) application;
+        final Lock lock = provider.getLock();
+        if (!(lock instanceof SmartLock)) {
+            throw new IllegalStateException("LockProvider must return an instance of SmartLock");
+        }
+        return (SmartLock) lock;
+    }
+
+    public static class Builder extends Lock.Builder {
+
+        private Application application;
+
+        public Builder(Application application) {
+            this.application = application;
+        }
+
+
+        @Override
+        public Lock.Builder useCredentialStore(CredentialStore store) {
+            Log.w(Builder.class.getName(), "There is no need to call this method for SmartLock");
+            return super.useCredentialStore(store);
+        }
+
+        @Override
+        protected Lock buildLock() {
+            return new SmartLock(application, buildAPIClient());
+        }
+    }
 }
