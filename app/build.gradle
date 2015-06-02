@@ -29,5 +29,5 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile libraries.app_compat
     compile project(':lock-smartlock')
-    compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
 }
