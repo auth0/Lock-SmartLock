@@ -9,8 +9,9 @@ android {
         minSdkVersion compile.minSdk
         targetSdkVersion compile.maxSdk
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
     }
+    
     buildTypes {
         release {
             minifyEnabled false
@@ -27,6 +28,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile libraries.app_compat
-    compile project(':lock')
+    compile project(':lock-smartlock')
     compile 'com.google.android.gms:play-services:7.5.0'
 }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
@@ -52,10 +53,18 @@ public class SmartLock implements CredentialStore, GoogleApiClient.ConnectionCal
         clearCredentialStoreCallback();
     }
 
+    /**
+     * Prepares SmartLock resources to perform authentication operations
+     * This should be called from {@link Activity#onStart()} of the Activity that needs authentication
+     */
     public void onStart() {
         getCredentialClient().connect();
     }
 
+    /**
+     * Cleans up SmartLock resources and state
+     * This should be called from {@link Activity#onStop()} of the Activity that needs authentication
+     */
     public void onStop() {
         clearCredentialStoreCallback();
         credentialRequest = null;
@@ -90,9 +99,13 @@ public class SmartLock implements CredentialStore, GoogleApiClient.ConnectionCal
     }
 
     @Override
-    public void saveFromActivity(Activity activity, String email, String password, CredentialStoreCallback callback) {
+    public void saveFromActivity(Activity activity, String username, String email, String password, String pictureUrl, CredentialStoreCallback callback) {
         setCallback(callback);
-        final Credential credential = new Credential.Builder(email)
+        String id = email != null ? email : username;
+        Uri pictureUri = pictureUrl != null ? Uri.parse(pictureUrl) : null;
+        final Credential credential = new Credential.Builder(id)
+                .setName(username)
+                .setProfilePictureUri(pictureUri)
                 .setPassword(password)
                 .build();
         GoogleApiClientConnectTask task = new SaveCredentialTask(activity, credential);
@@ -125,12 +138,9 @@ public class SmartLock implements CredentialStore, GoogleApiClient.ConnectionCal
         callback = new CredentialStoreCallback() {
             @Override
             public void onSuccess() {
-
             }
-
             @Override
             public void onError(int errorCode, Throwable e) {
-
             }
         };
     }
@@ -154,7 +164,7 @@ public class SmartLock implements CredentialStore, GoogleApiClient.ConnectionCal
         return credentialRequest;
     }
 
-    void onCredentialsRetrieved(final Activity activity, Credential credential) {
+    void onCredentialsRetrieved(final Activity activity, final Credential credential) {
         Log.v(TAG, "Credentials : " + credential.getName());
         String email = credential.getId();
         String password = credential.getPassword();
