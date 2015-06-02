@@ -16,7 +16,6 @@ import com.auth0.api.callback.AuthenticationCallback;
 import com.auth0.core.Token;
 import com.auth0.core.UserProfile;
 import com.auth0.lock.Lock;
-import com.auth0.lock.LockActivity;
 import com.auth0.lock.LockProvider;
 import com.auth0.lock.credentials.CredentialStore;
 import com.auth0.lock.credentials.CredentialStoreCallback;
@@ -33,6 +32,26 @@ import com.google.android.gms.common.api.Status;
 
 import java.lang.ref.WeakReference;
 
+/**
+ * Main class of Auth0 Lock integartion with SmartLock for Android
+ * This class is a {@link CredentialStore} itself so it can save user's credentials.
+ * To start just instantiate it using {@link com.auth0.lock.smartlock.SmartLock} like this inside your {@link Application} object:
+ * <pre>
+ *     <code>
+ *      lock = new SmartLock.Builder(this)
+ *              .loadFromApplication(this)
+ *              .closable(true)
+ *              .build();
+ *     </code>
+ * </pre>
+ *
+ * Then just invoke the login activity:
+ * <pre>
+ *     <code>
+ *      SmartLock.getLock(activity).loginFromActivity(activity);
+ *     </code>
+ * </pre>
+ */
 public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public static final int SMART_LOCK_READ = 90001;
@@ -78,6 +97,13 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
         clearTask();
     }
 
+    /**
+     * Method called in {@link Activity#onActivityResult(int, int, Intent)} callback to handle SmartLock interaction
+     * @param activity that received the result
+     * @param requestCode of the request
+     * @param resultCode received by the activity
+     * @param data of the result
+     */
     @Override
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -101,6 +127,15 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
         }
     }
 
+    /**
+     * Saves the user's credentials in Smart Lock for Android
+     * @param activity that wants to save the credentials
+     * @param username of the used to login
+     * @param email of the user
+     * @param password of the used to login
+     * @param pictureUrl of the user
+     * @param callback that will be called when the operation is completed
+     */
     @Override
     public void saveFromActivity(Activity activity, String username, String email, String password, String pictureUrl, CredentialStoreCallback callback) {
         setCallback(callback);
@@ -114,6 +149,11 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
         startTask(new SaveCredentialTask(activity, credential));
     }
 
+    /**
+     * First queries SmartLock for user credentials, if none is found it will show {@link com.auth0.lock.LockActivity}.
+     * Otherwise it will login with those credentials
+     * @param activity that wants to start the login operation
+     */
     @Override
     public void loginFromActivity(Activity activity) {
         startTask(new RequestCredentialsTask(activity));
@@ -221,6 +261,11 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
         return this;
     }
 
+    /**
+     * Obtain SmartLock from the LockProvider
+     * @param activity that requires Smart Lock
+     * @return an instance of SmartLock
+     */
     public static SmartLock getSmartLock(Activity activity) {
         Application application = activity.getApplication();
         if (!(application instanceof LockProvider)) {
@@ -234,14 +279,20 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
         return (SmartLock) lock;
     }
 
+    /**
+     * SmartLock Builder
+     */
     public static class Builder extends Lock.Builder {
 
         private Application application;
 
+        /**
+         * Creates a new instance of Builder
+         * @param application that will own the instance of SmartLock
+         */
         public Builder(Application application) {
             this.application = application;
         }
-
 
         @Override
         public Lock.Builder useCredentialStore(CredentialStore store) {

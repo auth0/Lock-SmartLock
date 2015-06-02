@@ -18,6 +18,7 @@ class RequestCredentialsTask extends GoogleApiClientConnectTask {
 
     @Override
     void onConnected(final SmartLock smartLock, final Activity activity) {
+        Log.v(TAG, "Requesting credentials from SmartLock");
         Auth.CredentialsApi.request(smartLock.getCredentialClient(), smartLock.newCredentialRequest()).setResultCallback(new ResultCallback<CredentialRequestResult>() {
             @Override
             public void onResult(CredentialRequestResult credentialRequestResult) {

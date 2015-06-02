@@ -22,6 +22,7 @@ abstract class GoogleApiClientConnectTask extends AsyncTask<SmartLock, Void, Sma
 
     @Override
     protected SmartLock doInBackground(SmartLock... smartLocks) {
+        Log.v(TAG, "Connecting GoogleApiClient....");
         final SmartLock smartLock = smartLocks[0];
         GoogleApiClient client = smartLock.getCredentialClient();
         ConnectionResult result = client.blockingConnect(5000, TimeUnit.SECONDS);
