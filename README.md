@@ -77,6 +77,8 @@ public class MyApplication extends Application implements LockProvider {
 }
 ```
 
+> For more information about configuration options for Lock, please go to [Lock repo](https://github.com/auth0/Lock.Android)
+
 ###Smart Lock configuration
 
 To enable your application to access Smart Lock, you need to register your application in [Google Developers Console](https://console.developers.google.com/) by creating a project and registering your keystore SHA1 fingerprint.
