@@ -60,7 +60,8 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
     private static final String TAG = SmartLock.class.getName();
 
     final GoogleApiClient credentialClient;
-    private CredentialRequest credentialRequest;
+    CredentialRequest credentialRequest;
+
     private CredentialStoreCallback callback;
     private WeakReference<GoogleApiClientConnectTask> task;
 
@@ -98,8 +99,9 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
         clearCredentialStoreCallback();
         credentialRequest = null;
         getCredentialClient().disconnect();
-        if (task.get() != null) {
-            task.get().cancel(false);
+        GoogleApiClientConnectTask task = currentTask();
+        if (task != null) {
+            task.cancel(false);
         }
         clearTask();
     }
@@ -145,6 +147,12 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
      */
     @Override
     public void saveFromActivity(Activity activity, String username, String email, String password, String pictureUrl, CredentialStoreCallback callback) {
+        if ((username == null && email == null) || password == null) {
+            Log.w(TAG, "Invalid credentials to save in Smart Lock");
+            callback.onError(CredentialStoreCallback.CREDENTIAL_STORE_SAVE_FAILED, null);
+            clearCredentialStoreCallback();
+            return;
+        }
         setCallback(callback);
         String id = email != null ? email : username;
         Uri pictureUri = pictureUrl != null ? Uri.parse(pictureUrl) : null;
@@ -216,9 +224,7 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
         String email = credential.getId();
         String password = credential.getPassword();
 
-        LockProvider provider = (LockProvider) activity.getApplication();
-        final Lock lock = provider.getLock();
-        lock.getAPIClient().login(email, password, lock.getAuthenticationParameters(), new AuthenticationCallback() {
+        getAPIClient().login(email, password, getAuthenticationParameters(), new AuthenticationCallback() {
             @Override
             public void onSuccess(UserProfile profile, Token token) {
                 Intent result = new Intent(Lock.AUTHENTICATION_ACTION)
@@ -248,6 +254,10 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
             Log.e(TAG, "Couldn't read the credentials using Smart Lock. Showing Lock...");
             startLockFromActivity(activity);
         }
+    }
+
+    GoogleApiClientConnectTask currentTask() {
+        return task.get();
     }
 
     private void startLockFromActivity(Activity activity) {

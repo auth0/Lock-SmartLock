@@ -21,7 +21,7 @@ class SaveCredentialTask extends GoogleApiClientConnectTask {
 
     @Override
     void onConnected(final SmartLock smartLock, final Activity activity) {
-        getCredentialsApi().save(smartLock.getCredentialClient(), credential).setResultCallback(new ResultCallback<com.google.android.gms.common.api.Status>() {
+        getCredentialsApi().save(smartLock.getCredentialClient(), getCredential()).setResultCallback(new ResultCallback<com.google.android.gms.common.api.Status>() {
             @Override
             public void onResult(com.google.android.gms.common.api.Status status) {
                 if (resolveStatus(status, activity, smartLock)) {
@@ -50,6 +50,10 @@ class SaveCredentialTask extends GoogleApiClientConnectTask {
                 return true;
             }
         });
+    }
+
+    Credential getCredential() {
+        return credential;
     }
 
     CredentialsApi getCredentialsApi() {
