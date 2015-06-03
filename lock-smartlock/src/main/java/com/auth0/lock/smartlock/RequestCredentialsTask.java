@@ -6,6 +6,7 @@ import android.util.Log;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.auth.api.credentials.CredentialRequestResult;
+import com.google.android.gms.auth.api.credentials.CredentialsApi;
 import com.google.android.gms.common.api.ResultCallback;
 
 class RequestCredentialsTask extends GoogleApiClientConnectTask {
@@ -18,7 +19,8 @@ class RequestCredentialsTask extends GoogleApiClientConnectTask {
 
     @Override
     void onConnected(final SmartLock smartLock, final Activity activity) {
-        Auth.CredentialsApi.request(smartLock.getCredentialClient(), smartLock.newCredentialRequest()).setResultCallback(new ResultCallback<CredentialRequestResult>() {
+        Log.v(TAG, "Requesting credentials from SmartLock");
+        getCredentialsApi().request(smartLock.getCredentialClient(), smartLock.newCredentialRequest()).setResultCallback(new ResultCallback<CredentialRequestResult>() {
             @Override
             public void onResult(CredentialRequestResult credentialRequestResult) {
                 final com.google.android.gms.common.api.Status status = credentialRequestResult.getStatus();
@@ -31,5 +33,9 @@ class RequestCredentialsTask extends GoogleApiClientConnectTask {
                 }
             }
         });
+    }
+
+    CredentialsApi getCredentialsApi() {
+        return Auth.CredentialsApi;
     }
 }

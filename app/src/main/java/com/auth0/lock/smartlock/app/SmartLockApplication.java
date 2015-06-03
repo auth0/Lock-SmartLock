@@ -9,18 +9,15 @@ import com.auth0.lock.smartlock.SmartLock;
 
 public class SmartLockApplication extends Application implements LockProvider {
 
-    private SmartLock smartLock;
     private Lock lock;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        smartLock = new SmartLock(this);
-        lock = new LockBuilder()
+        lock = new SmartLock.Builder(this)
                 .loadFromApplication(this)
                 .closable(true)
-                .useCredentialStore(smartLock)
                 .build();
     }
 
@@ -29,7 +26,4 @@ public class SmartLockApplication extends Application implements LockProvider {
         return lock;
     }
 
-    public SmartLock getSmartLock() {
-        return smartLock;
-    }
 }

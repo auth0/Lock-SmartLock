@@ -1,0 +1,17 @@
+language: android
+android:
+  components:
+  - build-tools-21.1.2
+  - android-22
+  - extra-google-google_play_services
+  - extra-google-m2repository
+  - extra-android-m2repository
+  - addon-google_apis-google-22
+script:
+  - "./gradlew clean check --continue"
+branches:
+  only:
+  - master
+notifications:
+  slack:
+    secure: ZHQ7j9G36rCuzk25qrsC3xlpR05fU4cAKAhKtZM4MLAQJNuCTdEbFS0M4hi1/M3jKzAaUwmg/9dZmxKzGkceP5D/7rx+/hSO943JwQf/Uf/wO8+2J02Cjko7PRKY/0lngE5B79e2MTOeYtHZ7AzTa2UktVgHIdMODWV1H/DGlyn6bJJlyb88P/fxq6cgD+o/4xfAJJcT6yA98G/nk0apSG+ETyu9NHwAZdRLVvhQ/kpwerKa+97Zi2MfV6lu5r9RMm5/MWkE74UH0uDIFafjcyO25uhkP1kRURHoyBGyypUBtRkn69uEGLnh5NvijEMT2cyLwOmW7Hl8hg2LadEhPRRdR4jO64KQfj2WbbUTCealLgtls0rVXMZJFDQwQ7rdinIaC3hcxtDLl3462KKVocdTFQuTXgHgTEUTIkQwQ3fv0nsJgK9KL+2GkqTY/gNFf3KQ9Hslc3XEykF4hNnLhQFzU62qM0RJ66eocKa2Qg2PNutvqI188w9Tld0CKhGLNI6zi8BjvbfwafngLGFVO1bW5z2aU8Vd/yFegFckXoOaoRAmu64+T3HJo8xImZ+fIA6jpN3dnLHoBy+ADmvmk3qtmwg3418uhp6ghLqn48fWlDCTh4yVvZALQPKqB2tD/DWi60FyVsS25A7AKfDFUWHGx1XheXY5B8me3RuMneo=

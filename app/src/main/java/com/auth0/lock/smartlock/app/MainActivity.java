@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showProgressDialog();
-                getSmartLock().loginFromActivity(MainActivity.this);
+                SmartLock.getSmartLock(MainActivity.this).loginFromActivity(MainActivity.this);
             }
         });
         broadcastManager = LocalBroadcastManager.getInstance(this);
@@ -53,19 +53,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        getSmartLock().onStart();
+        SmartLock.getSmartLock(MainActivity.this).onStart();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        getSmartLock().onStop();
+        SmartLock.getSmartLock(MainActivity.this).onStop();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        getSmartLock().onActivityResult(this, requestCode, resultCode, data);
+        SmartLock.getSmartLock(MainActivity.this).onActivityResult(this, requestCode, resultCode, data);
     }
 
     private void showProgressDialog() {
@@ -101,9 +101,4 @@ public class MainActivity extends AppCompatActivity {
             dismissProgressDialog();
         }
     };
-
-    private SmartLock getSmartLock() {
-        SmartLockApplication application = (SmartLockApplication) getApplication();
-        return application.getSmartLock();
-    }
 }
