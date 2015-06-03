@@ -1,0 +1,14 @@
+language: android
+android:
+  components:
+  - build-tools-21.1.2
+  - android-22
+  - extra-google-google_play_services
+  - extra-google-m2repository
+  - extra-android-m2repository
+  - addon-google_apis-google-22
+script:
+  - "./gradlew clean check --continue"
+branches:
+  only:
+  - master
