@@ -33,7 +33,7 @@ import com.google.android.gms.common.api.Status;
 import java.lang.ref.WeakReference;
 
 /**
- * Main class of Auth0 Lock integartion with SmartLock for Android
+ * Main class of Auth0 Lock integration with SmartLock for Android
  * This class is a {@link CredentialStore} itself so it can save user's credentials.
  * To start just instantiate it using {@link com.auth0.lock.smartlock.SmartLock} like this inside your {@link Application} object:
  * <pre>
@@ -59,18 +59,25 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
 
     private static final String TAG = SmartLock.class.getName();
 
-    private final GoogleApiClient credentialClient;
+    final GoogleApiClient credentialClient;
     private CredentialRequest credentialRequest;
     private CredentialStoreCallback callback;
     private WeakReference<GoogleApiClientConnectTask> task;
 
     public SmartLock(Context context, APIClient apiClient) {
         super(apiClient);
-        credentialClient = new GoogleApiClient.Builder(context.getApplicationContext())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Auth.CREDENTIALS_API)
-                .build();
+        this.credentialClient = new GoogleApiClient.Builder(context.getApplicationContext())
+                                    .addConnectionCallbacks(this)
+                                    .addOnConnectionFailedListener(this)
+                                    .addApi(Auth.CREDENTIALS_API)
+                                    .build();
+        clearTask();
+        clearCredentialStoreCallback();
+    }
+
+    SmartLock(GoogleApiClient credentialClient, APIClient client) {
+        super(client);
+        this.credentialClient = credentialClient;
         clearTask();
         clearCredentialStoreCallback();
     }
@@ -251,7 +258,7 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
         task = new WeakReference<>(null);
     }
 
-    private void startTask(GoogleApiClientConnectTask task) {
+    void startTask(GoogleApiClientConnectTask task) {
         task.execute(this);
         this.task = new WeakReference<>(task);
     }
