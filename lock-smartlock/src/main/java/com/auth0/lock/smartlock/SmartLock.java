@@ -28,6 +28,7 @@ import com.google.android.gms.auth.api.credentials.CredentialRequest;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
 import java.lang.ref.WeakReference;
@@ -172,6 +173,18 @@ public class SmartLock extends Lock implements CredentialStore, GoogleApiClient.
     @Override
     public void loginFromActivity(Activity activity) {
         startTask(new RequestCredentialsTask(activity));
+    }
+
+    /**
+     * Disable auto-signin for Smart Lock
+     */
+    public void disableAutoSignIn() {
+        Auth.CredentialsApi.disableAutoSignIn(this.credentialClient).setResultCallback(new ResultCallback<Status>() {
+            @Override
+            public void onResult(Status status) {
+                Log.v(TAG, "Disabled auto sign in with status " + status.getStatusMessage());
+            }
+        });
     }
 
     @Override
