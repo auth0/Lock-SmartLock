@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.2.0](https://github.com/auth0/Lock-SmartLock/tree/0.2.0) (2015-06-05)
+
+[Full Changelog](https://github.com/auth0/Lock-SmartLock/compare/0.1.0...0.2.0)
+
+**Merged pull requests:**
+
+- Add method to disable auto signin [\#3](https://github.com/auth0/Lock-SmartLock/pull/3) ([hzalaz](https://github.com/hzalaz))
+
 ## [0.1.0](https://github.com/auth0/Lock-SmartLock/tree/0.1.0) (2015-06-03)
 
 **Merged pull requests:**
