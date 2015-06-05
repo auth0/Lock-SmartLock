@@ -40,7 +40,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showProgressDialog();
-                SmartLock.getSmartLock(MainActivity.this).loginFromActivity(MainActivity.this);
+                final SmartLock lock = SmartLock.getSmartLock(MainActivity.this);
+                lock.disableAutoSignIn();
+                lock.loginFromActivity(MainActivity.this);
             }
         });
         broadcastManager = LocalBroadcastManager.getInstance(this);
