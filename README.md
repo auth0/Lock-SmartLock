@@ -82,7 +82,7 @@ public class MyApplication extends Application implements LockProvider {
 ###Smart Lock configuration
 
 To enable your application to access Smart Lock, you need to register your application in [Google Developers Console](https://console.developers.google.com/) by creating a project and registering your keystore SHA1 fingerprint.
-> We recoomend following Google's [Getting Started Guide](https://developers.google.com/identity/smartlock-passwords/android/get-started)
+> We recommend following Google's [Getting Started Guide](https://developers.google.com/identity/smartlock-passwords/android/get-started)
 
 Once you have registered your app just add this to your android manifest:
 
